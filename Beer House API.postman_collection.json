@@ -1,0 +1,246 @@
+{
+	"info": {
+		"_postman_id": "031406c9-33d8-4287-9df0-cfb3df588fb3",
+		"name": "Beer House API",
+		"description": "Cadastro de cervejas artesanais",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get All",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8ff63e6c-6c36-4cc6-9d0a-fc48e449eef1",
+						"exec": [
+							"pm.test(\"Status test\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9000/beerhouse/beers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"beerhouse",
+						"beers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get By Id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5fbea6dc-b0ab-4b48-b285-3aecf45ce6be",
+						"exec": [
+							"pm.test(\"Status test\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9000/beerhouse/beers/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"beerhouse",
+						"beers",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Beer",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3e39d7a6-754d-4045-8fa0-8049fa52263d",
+						"exec": [
+							"pm.test(\"Status test\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n   \"name\": \"Venus\",\r\n   \"category\": \"IPA\",\r\n   \"ingredients\": \"Cevada, Água\",\r\n   \"price\": 10.50,\r\n   \"alcoholContent\": \"8%\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9000/beerhouse/beers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"beerhouse",
+						"beers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Beer",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3ce79475-fdd6-4ca3-9f44-9c8532aadd1a",
+						"exec": [
+							"pm.test(\"Status test\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n   \"name\": \"Saturno\",\r\n   \"category\": \"IPA\",\r\n   \"ingredients\": \"Cevada, Água\",\r\n   \"price\": 10.50,\r\n   \"alcoholContent\": \"8%\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9000/beerhouse/beers/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"beerhouse",
+						"beers",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch Beer",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7c4f3ee3-a9fc-48a9-a4af-beb07fdf2750",
+						"exec": [
+							"pm.test(\"Status test\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Mercúrio\",\r\n    \"alcoholContent\": \"12%\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9000/beerhouse/beers/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"beerhouse",
+						"beers",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Beer",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "fac0afb9-c517-40a6-a195-9424d56f5bf4",
+						"exec": [
+							"pm.test(\"Status test\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9000/beerhouse/beers/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"beerhouse",
+						"beers",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
