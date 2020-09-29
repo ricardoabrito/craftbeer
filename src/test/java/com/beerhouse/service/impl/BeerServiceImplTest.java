@@ -12,46 +12,50 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class BeerServiceImplTest {
 
     @Autowired
     private BeerServiceImpl beerService;
 
-    private Long beerId;
-
-    @Test @Order(1)
+    @Test
     public void shouldCreateBeer() {
         //given
         Beer beer = new Beer(null, "a", "a", "a", BigDecimal.ONE, "a");
         //when
-        beer = beerService.save(beer);
+        Beer savedBeer = beerService.save(beer);
         //then
-        assertNotNull(beer.getId());
-        this.beerId = beer.getId();
+        assertNotNull(savedBeer.getId());
+        assertEquals(beer.getName(), savedBeer.getName());
+        assertEquals(beer.getCategory(), savedBeer.getCategory());
+        assertEquals(beer.getPrice(), savedBeer.getPrice());
+        assertEquals(beer.getAlcoholContent(), savedBeer.getAlcoholContent());
+        assertEquals(beer.getIngredients(), savedBeer.getIngredients());
     }
 
-    @Test @Order(2)
+    @Test
     public void shouldFindAllBeers() {
+        //given
+        Beer beer = new Beer(null, "a", "a", "a", BigDecimal.ONE, "a");
+        beerService.save(beer);
         //when
         List<Beer> beers = beerService.findAll();
         //then
         assertTrue(beers.size() > 0);
     }
 
-    @Test @Order(3)
+    @Test
     public void shouldFindById() {
         //given
-        Long idBeer = this.beerId;
+        Beer beer = new Beer(null, "a", "a", "a", BigDecimal.ONE.setScale(2), "a");
+        beer = beerService.save(beer);
         //when
-        Beer beer = beerService.findById(idBeer);
+        Beer findBeer = beerService.findById(beer.getId());
         //then
-        assertNotNull(beer);
-        assertEquals(idBeer, beer.getId());
+        assertNotNull(findBeer);
+        assertEquals(beer, findBeer);
     }
 
-    @Test @Order(4)
+    @Test
     public void shouldThrowExcptionIfBeerDontExists() {
         //given
         Long idBeer = Long.MAX_VALUE;
@@ -59,32 +63,34 @@ class BeerServiceImplTest {
         assertThrows(ResourceNotFoundException.class, () -> beerService.findById(idBeer));
     }
 
-    @Test @Order(5)
+    @Test
     public void shouldSaveChanges() {
         //given
-        Long beerId = this.beerId;
+        Beer beer = new Beer(null, "a", "a", "a", BigDecimal.ONE, "a");
+        Long beerId = beerService.save(beer).getId();
         Beer beerToSave = new Beer(beerId, "b", "b", "b", BigDecimal.TEN.setScale(2), "b");
         //when
-        beerService.save(beerToSave);
+        Beer savedBeer = beerService.save(beerToSave);
         //then
         Beer currentBeer = beerService.findById(beerId);
-        assertEquals(beerToSave, currentBeer);
+        assertEquals(savedBeer, currentBeer);
     }
 
-    @Test @Order(6)
+    @Test
     public void shouldDelete() {
         //given
-        Long beerId = this.beerId;
+        Beer beer = new Beer(null, "a", "a", "a", BigDecimal.ONE, "a");
+        Long beerId = beerService.save(beer).getId();
         //when
         beerService.delete(beerId);
         //then
         assertThrows(ResourceNotFoundException.class, () -> beerService.findById(beerId));
     }
 
-    @Test @Order(7)
+    @Test
     public void shouldThrowExceptionWhenDeletedResourceDontExists() {
         //given
-        Long beerId = this.beerId;
+        Long beerId = Long.MAX_VALUE;
         //when
         assertThrows(ResourceNotFoundException.class, () -> beerService.delete(beerId));
     }

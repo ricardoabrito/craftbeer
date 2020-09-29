@@ -1,7 +1,9 @@
 package com.beerhouse.web.rest;
 
 import com.beerhouse.web.rest.vm.BeerVM;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -18,8 +20,6 @@ import static com.beerhouse.util.BeerVMFactory.createBeerVMToPost;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class BeerControllerTest {
 
@@ -29,14 +29,12 @@ class BeerControllerTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
-    private Long beerId;
-
-    @BeforeAll
+    @BeforeEach
     public void setup() {
         restTemplate.getRestTemplate().setRequestFactory(new HttpComponentsClientHttpRequestFactory());
     }
 
-    @Test @Order(1)
+    @Test
     public void shouldCreateBeerOnPost() {
         //given
         BeerVM beerVM = createBeerVMToPost();
@@ -46,8 +44,7 @@ class BeerControllerTest {
         assertEquals(createdEntity.getStatusCode(), HttpStatus.CREATED);
         BeerVM createdBeer = createdEntity.getBody();
         assertNotNull(createdBeer.getId());
-        this.beerId = createdBeer.getId();
-        beerVM.setId(this.beerId);
+        beerVM.setId(createdBeer.getId());
         assertEquals(beerVM, createdBeer);
     }
 
@@ -73,8 +70,11 @@ class BeerControllerTest {
         assertEquals(createdEntity.getStatusCode(), HttpStatus.BAD_REQUEST);
     }
 
-    @Test @Order(2)
+    @Test
     public void shouldFindAllOnGet() {
+        //given
+        BeerVM beerVM = createBeerVMToPost();
+        BeerVM createdBeer = this.restTemplate.postForObject(resource(), beerVM, BeerVM.class);
         //when
         ResponseEntity<List> findAllEntity = this.restTemplate.getForEntity(resource(), List.class);
         //then
@@ -82,10 +82,12 @@ class BeerControllerTest {
         assertNotNull(findAllEntity.getBody().size() > 0);
     }
 
-    @Test @Order(3)
+    @Test
     public void shouldFindByIdOnGet() {
         //given
-        Long beerId = this.beerId;
+        BeerVM beerVM = createBeerVMToPost();
+        BeerVM createdBeer = this.restTemplate.postForObject(resource(), beerVM, BeerVM.class);
+        Long beerId = createdBeer.getId();
         //when
         ResponseEntity<BeerVM> findEntity = this.restTemplate.getForEntity(resource() + "/" + beerId, BeerVM.class);
         //then
@@ -93,7 +95,7 @@ class BeerControllerTest {
         assertEquals(beerId, findEntity.getBody().getId());
     }
 
-    @Test @Order(3)
+    @Test
     public void shouldThrowExptionWhenFindByIdDontExistsOnGet() {
         //given
         Long beerId = Long.MAX_VALUE;
@@ -103,25 +105,25 @@ class BeerControllerTest {
         assertEquals(errorEntitty.getStatusCode(), HttpStatus.BAD_REQUEST);
     }
 
-    @Test @Order(3)
+    @Test
     public void shouldUpdateOnPut() {
         //given
         BeerVM beerVM = createBeerVMToPost();
-        beerVM.setName("b");
-        beerVM.setId(beerId);
-        HttpEntity<BeerVM> httpEntity = new HttpEntity(beerVM);
+        BeerVM beerToUpdate = this.restTemplate.postForObject(resource(), beerVM, BeerVM.class);
+        beerToUpdate.setName("b");
+        HttpEntity<BeerVM> httpEntity = new HttpEntity(beerToUpdate);
         //when
-        ResponseEntity putEntity = this.restTemplate.exchange(resource() + "/" + beerId, HttpMethod.PUT, httpEntity, Object.class);
+        ResponseEntity putEntity = this.restTemplate.exchange(resource() + "/" + beerToUpdate.getId(), HttpMethod.PUT, httpEntity, Object.class);
         //then
         assertEquals(HttpStatus.OK, putEntity.getStatusCode());
-        ResponseEntity<BeerVM> findEntity = this.restTemplate.getForEntity(resource() + "/" + beerId, BeerVM.class);
-        assertEquals(beerVM.getName(), findEntity.getBody().getName());
+        ResponseEntity<BeerVM> findEntity = this.restTemplate.getForEntity(resource() + "/" + beerToUpdate.getId(), BeerVM.class);
+        assertEquals(beerToUpdate, findEntity.getBody());
     }
 
-    @Test @Order(3)
+    @Test
     public void shouldCreateOnPut() {
         //given
-        Long beerId = 2l;
+        Long beerId = 42l;
         BeerVM beerVM = createBeerVMToPost();
         beerVM.setName("b");
         beerVM.setId(beerId);
@@ -132,30 +134,34 @@ class BeerControllerTest {
         assertEquals(HttpStatus.CREATED, putEntity.getStatusCode());
     }
 
-    @Test @Order(3)
+    @Test
     public void shouldPatchOnPatch() {
         //given
-        BeerVM beerVM = new BeerVM();
-        beerVM.setName("c");
+        BeerVM beerVM = createBeerVMToPost();
+        BeerVM beerToPatch = this.restTemplate.postForObject(resource(), beerVM, BeerVM.class);
+        beerToPatch.setName("c");
         //when
-        this.restTemplate.patchForObject(resource() + "/" + beerId, beerVM, Object.class);
+        this.restTemplate.patchForObject(resource() + "/" + beerToPatch.getId(), beerToPatch, Object.class);
         //then
-        ResponseEntity<BeerVM> findEntity = this.restTemplate.getForEntity(resource() + "/" + beerId, BeerVM.class);
-        assertEquals(beerVM.getName(), findEntity.getBody().getName());
+        ResponseEntity<BeerVM> findEntity = this.restTemplate.getForEntity(resource() + "/" + beerToPatch.getId(), BeerVM.class);
+        assertEquals(beerToPatch, findEntity.getBody());
     }
 
-    @Test @Order(4)
+    @Test
     public void shouldDelete() {
+        //given
+        BeerVM beerVM = createBeerVMToPost();
+        BeerVM beerToDelete = this.restTemplate.postForObject(resource(), beerVM, BeerVM.class);
         //when
-        this.restTemplate.delete(resource() + "/" + beerId);
+        this.restTemplate.delete(resource() + "/" + beerToDelete.getId());
         //then
-        ResponseEntity<BeerVM> findEntity = this.restTemplate.getForEntity(resource() + "/" + beerId, BeerVM.class);
+        ResponseEntity<BeerVM> findEntity = this.restTemplate.getForEntity(resource() + "/" + beerToDelete.getId(), BeerVM.class);
         assertEquals(HttpStatus.BAD_REQUEST, findEntity.getStatusCode());
     }
 
-    @Test @Order(5)
+    @Test
     public void shouldReturnBadRequestWhenDeletedResourceDontExists() {
-        ResponseEntity deleteEntity = this.restTemplate.exchange(resource() + "/" + beerId, HttpMethod.DELETE, null, Object.class);
+        ResponseEntity deleteEntity = this.restTemplate.exchange(resource() + "/" + Long.MAX_VALUE, HttpMethod.DELETE, null, Object.class);
         //then
         assertEquals(HttpStatus.BAD_REQUEST, deleteEntity.getStatusCode());
     }

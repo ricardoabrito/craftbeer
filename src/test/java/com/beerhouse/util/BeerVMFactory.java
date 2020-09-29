@@ -12,7 +12,7 @@ public class BeerVMFactory {
         beerVM.setIngredients("a");
         beerVM.setCategory("a");
         beerVM.setName("a");
-        beerVM.setPrice(BigDecimal.ONE);
+        beerVM.setPrice(BigDecimal.ONE.setScale(2));
         return beerVM;
     }
 
